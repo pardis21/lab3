@@ -1,4 +1,7 @@
+import java.math.BigDecimal;
 import java.util.concurrent.atomic.*;
+import java.math.MathContext; 
+
 
 public final class SkipList {
     static final int MAX_LEVEL = 10;
@@ -188,26 +191,31 @@ public final class SkipList {
 
     public void printStats() {
         System.out.println("Printing Stats for Skip List");
-        int sum = 0, length = 0;
+        BigDecimal mean = BigDecimal.valueOf(0);
+        int length = 0;
         Node cur = head.next[0].getReference();
         while (cur.key < tail.key) {
-            sum += cur.value;
+            mean = mean.add(BigDecimal.valueOf(cur.value));
             length++;
             cur = cur.next[0].getReference();
         }
-        float mean = ((float)sum / length);
+        mean = mean.divide(BigDecimal.valueOf(length),  MathContext.DECIMAL128);
         
-        float varSum = 0;
+        BigDecimal varSum =  BigDecimal.valueOf(0);;
         cur = head.next[0].getReference();
         while (cur.key < tail.key) {
-            varSum += Math.pow((cur.value - mean), 2);
-            length++;
+            BigDecimal curVal = BigDecimal.valueOf(cur.value);
+            curVal = curVal.subtract(mean);
+            curVal = curVal.pow(2);
+            varSum = varSum.add(curVal);
             cur = cur.next[0].getReference();
         }
-        float variance = (varSum) / (length - 1);
 
-        System.out.println("Mean: " + mean);
-        System.out.println("Variance: " + variance);
+        int tmp = length - 1;
+        BigDecimal variance = varSum.divide(BigDecimal.valueOf(tmp), MathContext.DECIMAL32);
+
+        System.out.println("Mean: " + mean.toString());
+        System.out.println("Variance: " + variance.toString());
         System.out.println("--------------------------------------------------");
     }
 }
