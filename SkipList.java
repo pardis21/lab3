@@ -1,40 +1,40 @@
 import java.util.concurrent.atomic.*;
 
-public final class SkipList<T> {
+public final class SkipList {
     static final int MAX_LEVEL = 10;
-    final Node<T> head = new Node<T>(Integer.MIN_VALUE);
-    final Node<T> tail = new Node<T>(Integer.MAX_VALUE);
+    final Node head = new Node(Integer.MIN_VALUE);
+    final Node tail = new Node(Integer.MAX_VALUE);
 
     public SkipList() {
         for (int i = 0; i < head.next.length; i++) {
-            head.next[i] = new AtomicMarkableReference<SkipList.Node<T>>(tail, false);
+            head.next[i] = new AtomicMarkableReference<SkipList.Node>(tail, false);
         }
     }
 
-    public static final class Node<T> {
-        final T value;
+    public static final class Node {
+        final int value;
         final int key;
-        final AtomicMarkableReference<Node<T>>[] next;
+        final AtomicMarkableReference<Node>[] next;
         private int topLevel;
 
         // constructor for sentinel nodes
         public Node(int tmp) {
-            value = null;
+            value = -1;
             key = tmp;
-            next = (AtomicMarkableReference<Node<T>>[]) new AtomicMarkableReference[MAX_LEVEL + 1];
+            next = (AtomicMarkableReference<Node>[]) new AtomicMarkableReference[MAX_LEVEL + 1];
             for (int i = 0; i < next.length; i++) {
-                next[i] = new AtomicMarkableReference<Node<T>>(null, false);
+                next[i] = new AtomicMarkableReference<Node>(null, false);
             }
             topLevel = MAX_LEVEL;
         }
 
         // constructor for ordinary nodes
-        public Node(T x, int height) {
+        public Node(int x, int height) {
             value = x;
-            key = x.hashCode();
-            next = (AtomicMarkableReference<Node<T>>[]) new AtomicMarkableReference[height + 1];
+            key = x;
+            next = (AtomicMarkableReference<Node>[]) new AtomicMarkableReference[height + 1];
             for (int i = 0; i < next.length; i++) {
-                next[i] = new AtomicMarkableReference<Node<T>>(null, false);
+                next[i] = new AtomicMarkableReference<Node>(null, false);
             }
             topLevel = height;
         }
@@ -45,23 +45,23 @@ public final class SkipList<T> {
         }
     }
 
-    boolean add(T x) {
+    boolean add(int x) {
         int topLevel = randomLevel();
         int bottomLevel = 0;
-        Node<T>[] preds = (Node<T>[]) new Node[MAX_LEVEL + 1];
-        Node<T>[] succs = (Node<T>[]) new Node[MAX_LEVEL + 1];
+        Node[] preds = (Node[]) new Node[MAX_LEVEL + 1];
+        Node[] succs = (Node[]) new Node[MAX_LEVEL + 1];
         while (true) {
             boolean found = find(x, preds, succs);
             if (found) {
                 return false;
             } else {
-                Node<T> newNode = new Node(x, topLevel);
+                Node newNode = new Node(x, topLevel);
                 for (int level = bottomLevel; level <= topLevel; level++) {
-                    Node<T> succ = succs[level];
+                    Node succ = succs[level];
                     newNode.next[level].set(succ, false);
                 }
-                Node<T> pred = preds[bottomLevel];
-                Node<T> succ = succs[bottomLevel];
+                Node pred = preds[bottomLevel];
+                Node succ = succs[bottomLevel];
                 if (!pred.next[bottomLevel].compareAndSet(succ, newNode, false, false)) {
                     continue;
                 }
@@ -79,29 +79,29 @@ public final class SkipList<T> {
         }
     }
 
-    boolean remove(T x) {
+    boolean remove(int x) {
         int bottomLevel = 0;
-        Node<T>[] preds = (Node<T>[]) new Node[MAX_LEVEL + 1];
-        Node<T>[] succs = (Node<T>[]) new Node[MAX_LEVEL + 1];
-        Node<T> succ;
+        Node[] preds = (Node[]) new Node[MAX_LEVEL + 1];
+        Node[] succs = (Node[]) new Node[MAX_LEVEL + 1];
+        Node succ;
         while (true) {
             boolean found = find(x, preds, succs);
             if (!found) {
                 return false;
             } else {
-                Node<T> nodeToRemove = succs[bottomLevel];
-                for (int level = nodeToRemove.topLevel; level >= bottomLevel + 1; level--) {
+                Node nodeIntegeroRemove = succs[bottomLevel];
+                for (int level = nodeIntegeroRemove.topLevel; level >= bottomLevel + 1; level--) {
                     boolean[] marked = { false };
-                    succ = nodeToRemove.next[level].get(marked);
+                    succ = nodeIntegeroRemove.next[level].get(marked);
                     while (!marked[0]) {
-                        nodeToRemove.next[level].compareAndSet(succ, succ, false, true);
-                        succ = nodeToRemove.next[level].get(marked);
+                        nodeIntegeroRemove.next[level].compareAndSet(succ, succ, false, true);
+                        succ = nodeIntegeroRemove.next[level].get(marked);
                     }
                 }
                 boolean[] marked = { false };
-                succ = nodeToRemove.next[bottomLevel].get(marked);
+                succ = nodeIntegeroRemove.next[bottomLevel].get(marked);
                 while (true) {
-                    boolean iMarkedIt = nodeToRemove.next[bottomLevel].compareAndSet(succ, succ, false, true);
+                    boolean iMarkedIt = nodeIntegeroRemove.next[bottomLevel].compareAndSet(succ, succ, false, true);
                     succ = succs[bottomLevel].next[bottomLevel].get(marked);
                     if (iMarkedIt) {
                         find(x, preds, succs);
@@ -113,11 +113,11 @@ public final class SkipList<T> {
         }
     }
 
-    boolean contains(T x) {
+    boolean contains(int x) {
         int bottomLevel = 0;
-        int v = x.hashCode();
+        int v = x;
         boolean[] marked = { false };
-        Node<T> pred = head, curr = null, succ = null;
+        Node pred = head, curr = null, succ = null;
         for (int level = MAX_LEVEL; level >= bottomLevel; level--) {
             curr = curr.next[level].getReference();
             while (true) {
@@ -137,12 +137,12 @@ public final class SkipList<T> {
         return (curr.key == v);
     }
 
-    boolean find(T x, Node<T>[] preds, Node<T>[] succs) {
+    boolean find(int x, Node[] preds, Node[] succs) {
         int bottomLevel = 0;
-        int key = x.hashCode();
+        int key = x;
         boolean[] marked = { false };
         boolean snip;
-        Node<T> pred = null, curr = null, succ = null;
+        Node pred = null, curr = null, succ = null;
         retry: while (true) {
             pred = head;
             for (int level = MAX_LEVEL; level >= bottomLevel; level--) {
@@ -177,7 +177,7 @@ public final class SkipList<T> {
     public void printList() {
         for (int level = 0; level <= MAX_LEVEL; level++) {
             System.out.println("Printing Level " + level);
-            Node<T> cur = head.next[level].getReference();
+            Node cur = head.next[level].getReference();
             while (cur.key < tail.key) {
                 cur.printVal();
                 cur = cur.next[level].getReference();
@@ -189,9 +189,9 @@ public final class SkipList<T> {
     public void printStats() {
         System.out.println("Printing Stats for Skip List");
         int sum = 0, length = 0;
-        Node<T> cur = head.next[0].getReference();
+        Node cur = head.next[0].getReference();
         while (cur.key < tail.key) {
-            sum += (int)cur.value;
+            sum += cur.value;
             length++;
             cur = cur.next[0].getReference();
         }
@@ -200,7 +200,7 @@ public final class SkipList<T> {
         float varSum = 0;
         cur = head.next[0].getReference();
         while (cur.key < tail.key) {
-            varSum += Math.pow(((int)cur.value - mean), 2);
+            varSum += Math.pow((cur.value - mean), 2);
             length++;
             cur = cur.next[0].getReference();
         }
