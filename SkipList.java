@@ -1,7 +1,3 @@
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.*;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.*;
 
 public final class SkipList<T> {
@@ -188,5 +184,30 @@ public final class SkipList<T> {
             }
             System.out.println("--------------------------------------------------");
         }
+    }
+
+    public void printStats() {
+        System.out.println("Printing Stats for Skip List");
+        int sum = 0, length = 0;
+        Node<T> cur = head.next[0].getReference();
+        while (cur.key < tail.key) {
+            sum += (int)cur.value;
+            length++;
+            cur = cur.next[0].getReference();
+        }
+        float mean = ((float)sum / length);
+        
+        float varSum = 0;
+        cur = head.next[0].getReference();
+        while (cur.key < tail.key) {
+            varSum += Math.pow(((int)cur.value - mean), 2);
+            length++;
+            cur = cur.next[0].getReference();
+        }
+        float variance = (varSum) / (length - 1);
+
+        System.out.println("Mean: " + mean);
+        System.out.println("Variance: " + variance);
+        System.out.println("--------------------------------------------------");
     }
 }

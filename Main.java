@@ -1,17 +1,24 @@
+import java.util.*;
+
 class Main {
 
   public static void main(String[] args) {
-    System.out.println("Hello World");
+    // random distribution
+    SkipList<Integer> slRand = new SkipList<Integer>();
 
-    SkipList<Integer> sl = new SkipList<Integer>();
-    sl.add(0);
-    sl.add(10);
-    sl.add(2);
-    sl.add(7);
-    sl.add(5);
-    sl.add(10);
+    for (int i = 0; i < 10000000; i++) {
+      slRand.add((int) (Math.random() * 10000000));
+    }
 
-    sl.printList();
+    slRand.printStats();
+
+    // normal distribution
+    SkipList<Integer> slNorm = new SkipList<Integer>();
+    Random rand = new Random();
+    for (int i = 0; i < 10000000; i++) {
+      slNorm.add((int)(rand.nextGaussian()*2886751+5000000));
+    }
+
+    slNorm.printStats();
   }
 }
-
