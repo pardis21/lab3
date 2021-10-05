@@ -20,14 +20,8 @@ clean :
 	@echo "Delete .class files."
 	@rm *.class -vf
 
-run_1 :
-	@$(JE) $(JCP) $(EXEC) 1 $(N)
-run_2 :
-	@$(JE) $(JCP) $(EXEC) 2 $(N)
-run_3 :
-	@$(JE) $(JCP) $(EXEC) 3 $(N)
-run_4 :
-	@$(JE) $(JCP) $(EXEC) 4 $(N)
+run :
+	@$(JE) $(JCP) $(EXEC)
 help :
 	@echo "============================================================"
 	@echo "Compilation of application :"
