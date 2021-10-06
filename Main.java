@@ -23,9 +23,8 @@ class Main {
     slRand.plotValues("rand");
     //slRand.printList();
     slRand.printStats();
-    System.out.println("============================================");   
 
-    // normal distribution
+    /*// normal distribution
     SkipList slNorm = new SkipList();
     Random rand = new Random();
     begin = System.nanoTime();
@@ -41,6 +40,13 @@ class Main {
     slNorm.plotValues("norm");
 
     //slNorm.printList();
-    slNorm.printStats();
+    slNorm.printStats();*/
+
+    TestSkipList test = new TestSkipList(slRand);
+    test.set(100, 3, 0.1, 0.3, 0.6);
+    test.start();
+    test.stop();
+    slRand.printStats();
+
   }
 }
