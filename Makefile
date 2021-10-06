@@ -21,7 +21,7 @@ clean :
 	@rm *.class -vf
 
 run :
-	@$(JE) $(JCP) $(EXEC)
+	@$(JE) $(JCP) $(EXEC) $(SIZE)
 help :
 	@echo "============================================================"
 	@echo "Compilation of application :"
