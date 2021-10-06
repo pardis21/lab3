@@ -3,22 +3,44 @@ import java.util.*;
 class Main {
 
   public static void main(String[] args) {
+
+    final int LAB_VALUE = 10000000;
+    final int SIZE = (args.length > 0)?Integer.parseInt(args[0]):LAB_VALUE;
     // random distribution
     SkipList slRand = new SkipList();
-
-    for (int i = 0; i < 100000; i++) {
-      slRand.add((int) (Math.random() * 10000000));
+    final double MEAN = SIZE/2.0;
+    final double STD_DEV = SIZE/Math.sqrt(12.0);
+    
+    System.out.println("Estimated mean: "+MEAN);
+    System.out.println("Estimated std deviation: "+STD_DEV);
+    System.out.println("============================================");   
+    long begin = System.nanoTime();
+    for (int i = 0; i < SIZE; i++) {
+      double value = (Math.random() * SIZE);
+      slRand.add((int)value);
     }
-
+    System.out.println("duration: "+ (System.nanoTime() - begin));
+    slRand.plotValues("rand");
+    //slRand.printList();
     slRand.printStats();
+    System.out.println("============================================");   
 
     // normal distribution
     SkipList slNorm = new SkipList();
     Random rand = new Random();
-    for (int i = 0; i < 100000; i++) {
-      slNorm.add((int)(rand.nextGaussian()*2886751+5000000));
+    begin = System.nanoTime();
+    for (int i = 0; i < SIZE; i++) {
+      double value = (rand.nextGaussian()*STD_DEV+MEAN);
+      if(value > SIZE)
+        value = SIZE;
+      else if (value < 0)
+        value = 0;
+      slNorm.add((int)value);
     }
+    System.out.println("duration: "+ (System.nanoTime() - begin));
+    slNorm.plotValues("norm");
 
+    //slNorm.printList();
     slNorm.printStats();
   }
 }
