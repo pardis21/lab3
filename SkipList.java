@@ -1,6 +1,7 @@
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.*;
 import java.math.MathContext; 
+import java.io.*;
 
 
 public final class SkipList {
@@ -174,7 +175,17 @@ public final class SkipList {
     }
 
     private int randomLevel() {
-        return (int) (Math.random() * MAX_LEVEL);
+        int level = 0;
+        boolean next = true;
+        while(level < MAX_LEVEL && next) {
+          if(Math.random() < 0.5) {
+            level ++;
+          } else {
+            next = false;
+          }
+        }
+        return level;
+        //return (int) (Math.random() * MAX_LEVEL);
     }
 
     public void printList() {
@@ -187,6 +198,22 @@ public final class SkipList {
             }
             System.out.println("--------------------------------------------------");
         }
+    }
+
+    public void plotValues(String f) {
+      try {
+        Node cur = head.next[0].getReference();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(f+".csv"));
+
+        while(cur.key < tail.key){
+          //add to output file
+          writer.write(cur.value+"\n");
+          cur = cur.next[0].getReference();
+        }
+        writer.close();
+      } catch(Exception e) {
+        System.err.println(e);
+      }
     }
 
     public void printStats() {
