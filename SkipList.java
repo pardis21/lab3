@@ -123,7 +123,7 @@ public final class SkipList {
         boolean[] marked = { false };
         Node pred = head, curr = null, succ = null;
         for (int level = MAX_LEVEL; level >= bottomLevel; level--) {
-            curr = curr.next[level].getReference();
+            curr = pred.next[level].getReference();
             while (true) {
                 succ = curr.next[level].get(marked);
                 while (marked[0]) {
@@ -153,14 +153,14 @@ public final class SkipList {
                 curr = pred.next[level].getReference();
                 while (true) {
                     succ = curr.next[level].get(marked);
-                    while (marked[0]) {
-                        snip = pred.next[level].compareAndSet(curr, succ, false, false);
-                        if (!snip)
+                    while (marked[0]) { //succ is a logically removed node
+                        snip = pred.next[level].compareAndSet(curr, succ, false, false); //physically removing node
+                        if (!snip) //try again if collision with an other thread
                             continue retry;
                         curr = pred.next[level].getReference();
                         succ = curr.next[level].get(marked);
                     }
-                    if (curr.key < key) {
+                    if (curr.key < key) { //keep going while key is less than what we are looking for
                         pred = curr;
                         curr = succ;
                     } else {
@@ -168,7 +168,7 @@ public final class SkipList {
                     }
                 }
                 preds[level] = pred;
-                succs[level] = curr;
+                succs[level] = curr; //
             }
             return (curr.key == key);
         }

@@ -52,7 +52,7 @@ public final class TestSkipList {
     executorService = Executors.newFixedThreadPool(threads);
     int opPerThread = operations / threads; // approximation +/- 1 can be ignored here
     for (int i = 0; i < threads; i++) {
-      executorService.submit(new Runnable() {
+      executorService.execute(new Runnable() {
         public void run() {
           for (int a = 0; a < opPerThread * adds; a++) {
             sl.add((int) (Math.random() * adds));
