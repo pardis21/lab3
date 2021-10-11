@@ -55,15 +55,15 @@ public final class TestSkipList {
       executorService.execute(new Runnable() {
         public void run() {
           for (int a = 0; a < opPerThread * adds; a++) {
-            sl.add((int) (Math.random() * adds));
+            sl.add((int) (Math.random() * operations));
           }
 
           for (int r = 0; r < opPerThread * removes; r++) {
-            sl.remove((int) (Math.random() * removes));
+            sl.remove((int) (Math.random() * operations));
           }
 
           for (int c = 0; c < opPerThread * contains; c++) {
-            sl.contains((int) (Math.random() * contains));
+            sl.contains((int) (Math.random() * operations));
           }
         }
       });

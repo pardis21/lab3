@@ -1,5 +1,6 @@
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.*;
+import java.util.*;
 import java.math.MathContext; 
 import java.io.*;
 
@@ -8,8 +9,10 @@ public final class SkipList {
     static final int MAX_LEVEL = 10;
     final Node head = new Node(Integer.MIN_VALUE);
     final Node tail = new Node(Integer.MAX_VALUE);
+    private List<Log> logs;
 
     public SkipList() {
+      logs = new LinkedList<Log>();
         for (int i = 0; i < head.next.length; i++) {
             head.next[i] = new AtomicMarkableReference<SkipList.Node>(tail, false);
         }
@@ -50,95 +53,110 @@ public final class SkipList {
     }
 
     boolean add(int x) {
-        int topLevel = randomLevel();
-        int bottomLevel = 0;
-        Node[] preds = (Node[]) new Node[MAX_LEVEL + 1];
-        Node[] succs = (Node[]) new Node[MAX_LEVEL + 1];
-        while (true) {
-            boolean found = find(x, preds, succs);
-            if (found) {
-                return false;
-            } else {
-                Node newNode = new Node(x, topLevel);
-                for (int level = bottomLevel; level <= topLevel; level++) {
-                    Node succ = succs[level];
-                    newNode.next[level].set(succ, false);
-                }
-                Node pred = preds[bottomLevel];
-                Node succ = succs[bottomLevel];
-                if (!pred.next[bottomLevel].compareAndSet(succ, newNode, false, false)) {
-                    continue;
-                }
-                for (int level = bottomLevel + 1; level <= topLevel; level++) {
-                    while (true) {
-                        pred = preds[level];
-                        succ = succs[level];
-                        if (pred.next[level].compareAndSet(succ, newNode, false, false))
-                            break;
-                        find(x, preds, succs);
-                    }
-                }
-                return true;
-            }
+      int topLevel = randomLevel();
+      int bottomLevel = 0;
+      Node[] preds = (Node[]) new Node[MAX_LEVEL + 1];
+      Node[] succs = (Node[]) new Node[MAX_LEVEL + 1];
+      while (true) {
+        boolean found = find(x, preds, succs);
+        synchronized(this) {
+          if (found) {
+            logs.add(new Log(Log.Method.ADD,false,x,System.nanoTime()));
+            return false;
+          }
         }
+        Node newNode = new Node(x, topLevel);
+        for (int level = bottomLevel; level <= topLevel; level++) {
+          Node succ = succs[level];
+          newNode.next[level].set(succ, false);
+        }
+        Node pred = preds[bottomLevel];
+        Node succ = succs[bottomLevel];
+        synchronized(this) {
+          if (!pred.next[bottomLevel].compareAndSet(succ, newNode, false, false)) {
+            logs.add(new Log(Log.Method.ADD,true,x,System.nanoTime()));
+            continue;
+          }
+        }
+        for (int level = bottomLevel + 1; level <= topLevel; level++) {
+          while (true) {
+            pred = preds[level];
+            succ = succs[level];
+            if (pred.next[level].compareAndSet(succ, newNode, false, false))
+              break;
+            find(x, preds, succs);
+          }
+        }
+        return true;
+      }
     }
 
     boolean remove(int x) {
-        int bottomLevel = 0;
-        Node[] preds = (Node[]) new Node[MAX_LEVEL + 1];
-        Node[] succs = (Node[]) new Node[MAX_LEVEL + 1];
-        Node succ;
-        while (true) {
-            boolean found = find(x, preds, succs);
-            if (!found) {
-                return false;
-            } else {
-                Node nodeIntegeroRemove = succs[bottomLevel];
-                for (int level = nodeIntegeroRemove.topLevel; level >= bottomLevel + 1; level--) {
-                    boolean[] marked = { false };
-                    succ = nodeIntegeroRemove.next[level].get(marked);
-                    while (!marked[0]) {
-                        nodeIntegeroRemove.next[level].compareAndSet(succ, succ, false, true);
-                        succ = nodeIntegeroRemove.next[level].get(marked);
-                    }
-                }
-                boolean[] marked = { false };
-                succ = nodeIntegeroRemove.next[bottomLevel].get(marked);
-                while (true) {
-                    boolean iMarkedIt = nodeIntegeroRemove.next[bottomLevel].compareAndSet(succ, succ, false, true);
-                    succ = succs[bottomLevel].next[bottomLevel].get(marked);
-                    if (iMarkedIt) {
-                        find(x, preds, succs);
-                        return true;
-                    } else if (marked[0])
-                        return false;
-                }
-            }
+      int bottomLevel = 0;
+      Node[] preds = (Node[]) new Node[MAX_LEVEL + 1];
+      Node[] succs = (Node[]) new Node[MAX_LEVEL + 1];
+      Node succ;
+      while (true) {
+        boolean found = find(x, preds, succs);
+        synchronized(this) {
+          if (!found) {
+            logs.add(new Log(Log.Method.REMOVE,false,x,System.nanoTime()));
+            return false;
+          } 
         }
+        Node nodeIntegeroRemove = succs[bottomLevel];
+        for (int level = nodeIntegeroRemove.topLevel; level >= bottomLevel + 1; level--) {
+          boolean[] marked = { false };
+          succ = nodeIntegeroRemove.next[level].get(marked);
+          while (!marked[0]) {
+            nodeIntegeroRemove.next[level].compareAndSet(succ, succ, false, true);
+            succ = nodeIntegeroRemove.next[level].get(marked);
+          }
+        }
+        boolean[] marked = { false };
+        succ = nodeIntegeroRemove.next[bottomLevel].get(marked);
+        while (true) {
+          boolean iMarkedIt;
+          synchronized(this) {  
+            iMarkedIt = nodeIntegeroRemove.next[bottomLevel].compareAndSet(succ, succ, false, true);
+            logs.add(new Log(Log.Method.REMOVE,true,x,System.nanoTime()));
+          }
+          succ = succs[bottomLevel].next[bottomLevel].get(marked);
+          if (iMarkedIt) {
+            find(x, preds, succs);
+            return true;
+          } else if (marked[0])
+            return false;
+        }
+      }
+
     }
 
     boolean contains(int x) {
-        int bottomLevel = 0;
-        int v = x;
-        boolean[] marked = { false };
-        Node pred = head, curr = null, succ = null;
-        for (int level = MAX_LEVEL; level >= bottomLevel; level--) {
-            curr = pred.next[level].getReference();
-            while (true) {
-                succ = curr.next[level].get(marked);
-                while (marked[0]) {
-                    curr = pred.next[level].getReference();
-                    succ = curr.next[level].get(marked);
-                }
-                if (curr.key < v) {
-                    pred = curr;
-                    curr = succ;
-                } else {
-                    break;
-                }
-            }
+      int bottomLevel = 0;
+      int v = x;
+      boolean[] marked = { false };
+      Node pred = head, curr = null, succ = null;
+      for (int level = MAX_LEVEL; level >= bottomLevel; level--) {
+          curr = pred.next[level].getReference();
+        while (true) {
+          succ = curr.next[level].get(marked);
+          while (marked[0]) {
+              curr = pred.next[level].getReference();
+              succ = curr.next[level].get(marked);
+          }
+          if (curr.key < v) {
+            pred = curr;
+            curr = succ;
+          } else {
+            break;
+          }
         }
+      }
+      synchronized(this) {
+        logs.add(new Log(Log.Method.CONTAINS,curr.key==v,x,System.nanoTime()));
         return (curr.key == v);
+      }
     }
 
     boolean find(int x, Node[] preds, Node[] succs) {
@@ -216,6 +234,54 @@ public final class SkipList {
       }
     }
 
+    public boolean checkLogOrder() {
+      System.out.println(logs);
+      for(int i = 1; i < logs.size(); i++) {
+        if(logs.get(i-1).timestamp > logs.get(i).timestamp ){
+          System.out.println("unordered list" + i+" "+logs.get(i).timestamp);
+          return false;
+        }
+
+        switch(logs.get(i).method) {
+          case CONTAINS:
+            for(int c = i-1; c>= 0; c--) {
+              if(logs.get(c).value == logs.get(i).value && logs.get(c).success) {
+                switch(logs.get(c).method) {
+                  case CONTAINS:
+                    if(logs.get(c).success != logs.get(i).success) {
+                      System.out.println("contains-contains "+i+" "+logs.get(i).timestamp);
+                      return false;
+                    }
+                    break;
+                  case REMOVE:
+                    if(logs.get(c).success == logs.get(i).success){
+                      System.out.println("contains-remove "+i+" "+logs.get(i).timestamp); 
+                      return false;
+                    }
+                    break;
+                  case ADD:
+                    if(!logs.get(i).success){
+                      System.out.println("contains-add "+i+" "+logs.get(i).timestamp);
+                      return false;
+                    }
+                    break;
+                }
+              }
+              break;
+            }
+            break;
+          case REMOVE:
+            break;
+          case ADD:
+            break;
+        }
+
+      }
+    return true;
+    }
+
+
+    
     public void printStats() {
         System.out.println("Printing Stats for Skip List");
         BigDecimal mean = BigDecimal.valueOf(0);

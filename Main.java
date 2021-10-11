@@ -6,7 +6,7 @@ class Main {
 
   public static void main(String[] args) {
 
-    final int LAB_VALUE = 10000000;
+    final int LAB_VALUE = 100;
     final int SIZE = (args.length > 0) ? Integer.parseInt(args[0]) : LAB_VALUE;
 
     // Part 2
@@ -18,10 +18,10 @@ class Main {
     final double MEAN = SIZE / 2.0;
     final double STD_DEV = SIZE / Math.sqrt(12.0);
 
-    System.out.println("Estimated mean: " + MEAN);
+    /*System.out.println("Estimated mean: " + MEAN);
     System.out.println("Estimated std deviation: " + STD_DEV);
     System.out.println("============================================");
-    long begin = System.nanoTime();
+    long begin = System.nanoTime();*/
     if(SIZE > 1000000){
       int numberThreads = SIZE/1000000;
       ExecutorService es = Executors.newFixedThreadPool(numberThreads);
@@ -50,64 +50,66 @@ class Main {
       }
     }
 
-    System.out.println("duration: " + (System.nanoTime() - begin));
+   /* System.out.println("duration: " + (System.nanoTime() - begin));
     slRand.plotValues("rand");
     slRand.printStats();
     slNorm.plotValues("norm");
-    slNorm.printStats();
+    slNorm.printStats();*/
 
     // Part 3
-    try {
+   try {
       BufferedWriter writer = new BufferedWriter(new FileWriter("part3.csv"));
 
-      System.out.println("====2 threads====");
+      //System.out.println("====2 threads====");
       // 2 threads
-      System.out.println("**step 1**");
-      part3(slRand, slNorm, 2, 0.1, 0.1, 0.8, writer);
-      System.out.println("**step 2**");
-      part3(slRand, slNorm, 2, 0.5, 0.5, 0.0, writer);
-      System.out.println("**step 3**");
+     // System.out.println("**step 1**");
+     // part3(slRand, slNorm, 2, 0.1, 0.1, 0.8, writer);
+     // System.out.println("**step 2**");
+     // part3(slRand, slNorm, 2, 0.5, 0.5, 0.0, writer);
+     // System.out.println("**step 3**");
       part3(slRand, slNorm, 2, 0.5, 0.25, 0.25, writer);
-      System.out.println("**step 4**");
-      part3(slRand, slNorm, 2, 0.9, 0.05, 0.05, writer);
+     // System.out.println("**step 4**");
+     // part3(slRand, slNorm, 2, 0.9, 0.05, 0.05, writer);
 
       // 12 threads
-      System.out.println("====12 threads====");
-      System.out.println("**step 1**");
-      part3(slRand, slNorm, 12, 0.1, 0.1, 0.8, writer);
-      System.out.println("**step 2**");
-      part3(slRand, slNorm, 12, 0.5, 0.5, 0.0, writer);
-      System.out.println("**step 3**");
-      part3(slRand, slNorm, 12, 0.5, 0.25, 0.25, writer);
-      System.out.println("**step 4**");
-      part3(slRand, slNorm, 12, 0.9, 0.05, 0.05, writer);
+      //System.out.println("====12 threads====");
+      //System.out.println("**step 1**");
+      //part3(slRand, slNorm, 12, 0.1, 0.1, 0.8, writer);
+      //System.out.println("**step 2**");
+      //part3(slRand, slNorm, 12, 0.5, 0.5, 0.0, writer);
+      //System.out.println("**step 3**");
+      //part3(slRand, slNorm, 12, 0.5, 0.25, 0.25, writer);
+      //System.out.println("**step 4**");
+      //part3(slRand, slNorm, 12, 0.9, 0.05, 0.05, writer);
 
       // 30 threads
-      System.out.println("====30 threads====");
-      System.out.println("**step 1**");
-      part3(slRand, slNorm, 30, 0.1, 0.1, 0.8, writer);
-      System.out.println("**step 2**");
-      part3(slRand, slNorm, 30, 0.5, 0.5, 0.0, writer);
-      System.out.println("**step 3**");
-      part3(slRand, slNorm, 30, 0.5, 0.25, 0.25, writer);
-      System.out.println("**step 4**");
-      part3(slRand, slNorm, 30, 0.9, 0.05, 0.05, writer);
+//      System.out.println("====30 threads====");
+  //    System.out.println("**step 1**");
+    //  part3(slRand, slNorm, 30, 0.1, 0.1, 0.8, writer);
+     // System.out.println("**step 2**");
+     // part3(slRand, slNorm, 30, 0.5, 0.5, 0.0, writer);
+      //System.out.println("**step 3**");
+      //part3(slRand, slNorm, 30, 0.5, 0.25, 0.25, writer);
+      //System.out.println("**step 4**");
+      //part3(slRand, slNorm, 30, 0.9, 0.05, 0.05, writer);
 
       // 46 threads
-      System.out.println("====46 threads====");
-      System.out.println("**step 1**");
-      part3(slRand, slNorm, 46, 0.1, 0.1, 0.8, writer);
-      System.out.println("**step 2**");
-      part3(slRand, slNorm, 46, 0.5, 0.5, 0.0, writer);
-      System.out.println("**step 3**");
-      part3(slRand, slNorm, 46, 0.5, 0.25, 0.25, writer);
-      System.out.println("**step 4**");
-      part3(slRand, slNorm, 46, 0.9, 0.05, 0.05, writer);
+      //System.out.println("====46 threads====");
+      //System.out.println("**step 1**");
+      //part3(slRand, slNorm, 46, 0.1, 0.1, 0.8, writer);
+      //System.out.println("**step 2**");
+      //part3(slRand, slNorm, 46, 0.5, 0.5, 0.0, writer);
+      //System.out.println("**step 3**");
+      //part3(slRand, slNorm, 46, 0.5, 0.25, 0.25, writer);
+      //System.out.println("**step 4**");
+      //part3(slRand, slNorm, 46, 0.9, 0.05, 0.05, writer);
 
       writer.close();
     } catch (Exception e) {
     }
+   System.out.println(slRand.checkLogOrder());
   }
+
 
   private static void part3(SkipList rand, SkipList norm, int threads, double a, double r, double c, BufferedWriter w) {
     long executionTimeRand = 0;
@@ -115,7 +117,7 @@ class Main {
     TestSkipList test;
     long begin;
     final int NUM_TESTS = 10;
-    final int NUM_OPERATIONS = 1000000;
+    final int NUM_OPERATIONS = 10;
 
     for (int i = 0; i < NUM_TESTS; i++) {
       System.out.println("run "+i);
