@@ -116,11 +116,13 @@ public final class SkipList {
         }
         boolean[] marked = { false };
         succ = nodeIntegeroRemove.next[bottomLevel].get(marked);
+        int i = 0;
         while (true) {
           boolean iMarkedIt;
           synchronized(this) {  
             iMarkedIt = nodeIntegeroRemove.next[bottomLevel].compareAndSet(succ, succ, false, true);
-            logs.add(new Log(Log.Method.REMOVE,true,x,System.nanoTime()));
+            if(iMarkedIt)
+              logs.add(new Log(Log.Method.REMOVE,true,x,System.nanoTime()));
           }
           succ = succs[bottomLevel].next[bottomLevel].get(marked);
           if (iMarkedIt) {
