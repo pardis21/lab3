@@ -74,16 +74,17 @@ public final class SkipList {
         Node succ = succs[bottomLevel];
         synchronized(this) {
           if (!pred.next[bottomLevel].compareAndSet(succ, newNode, false, false)) {
-            logs.add(new Log(Log.Method.ADD,true,x,System.nanoTime()));
             continue;
           }
+          logs.add(new Log(Log.Method.ADD,true,x,System.nanoTime()));
         }
         for (int level = bottomLevel + 1; level <= topLevel; level++) {
           while (true) {
             pred = preds[level];
             succ = succs[level];
-            if (pred.next[level].compareAndSet(succ, newNode, false, false))
+            if (pred.next[level].compareAndSet(succ, newNode, false, false)){
               break;
+            }
             find(x, preds, succs);
           }
         }
@@ -129,7 +130,6 @@ public final class SkipList {
             return false;
         }
       }
-
     }
 
     boolean contains(int x) {
@@ -271,6 +271,36 @@ public final class SkipList {
             }
             break;
           case REMOVE:
+            int r;
+            for(r=i-1; r >=0; r--) {
+              if(logs.get(r).value == logs.get(i).value && logs.get(r).success) {
+                switch(logs.get(r).method) {
+                  case CONTAINS:
+                    if(logs.get(r).success != logs.get(i).success){
+                      System.out.println("remove-contains "+i+" "+logs.get(i).timestamp);
+                      return false;
+                    }
+                    break;
+                  case REMOVE:
+                    if(logs.get(i).success) {
+                      System.out.println("remove-remove "+i+" "+logs.get(i).timestamp);
+                      return false;
+                    }
+                    break;
+                  case ADD:
+                    if(logs.get(i).success != logs.get(r).success) {
+                      System.out.println("remove-add "+i+" "+logs.get(i).timestamp);
+                      return false;
+                    }
+                    break;
+                }
+                break;
+              }
+            }
+              if(r == 0 && logs.get(i).success){
+                System.out.println("successful removing of item never added "+i+" "+logs.get(i).timestamp);
+                return false;
+              }
             break;
           case ADD:
             break;
