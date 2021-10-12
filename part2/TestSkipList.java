@@ -54,8 +54,15 @@ public final class TestSkipList {
   }
 
   public void stop() {
-
     es.shutdown();
+    try {
+      if (!es.awaitTermination(3600, TimeUnit.SECONDS)) {
+        es.shutdownNow();
+      }
+    } catch (InterruptedException ex) {
+      es.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
   }
   
   public void populate(int size) {
@@ -65,7 +72,7 @@ public final class TestSkipList {
       for(int i = 0; i < numberThreads; i++) {
         es.execute(new AddThread(size, mode, sl));
       }
-      es.shutdown();
+      this.stop();
     } else {
       double value;
       switch(mode) {
@@ -93,7 +100,6 @@ public final class TestSkipList {
   public void start() {
     es = Executors.newFixedThreadPool(threads);
     int opPerThread = operations / threads; // approximation +/- 1 can be ignored here
-
     
     for (int i = 0; i < threads; i++) {
       es.execute(new Runnable() {
@@ -112,5 +118,6 @@ public final class TestSkipList {
         }
       });
     }
+    this.stop();
   }
 }

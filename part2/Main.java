@@ -83,13 +83,11 @@ class Main {
       rand.set(NUM_OPERATIONS, threads, a, r, c);
       begin = System.nanoTime();
       rand.start();
-      rand.stop();
       executionTimeRand += (System.nanoTime() - begin);
 
       norm.set(NUM_OPERATIONS, threads, a, r, c);
       begin = System.nanoTime();
       norm.start();
-      norm.stop();
       executionTimeNorm += (System.nanoTime() - begin);
     }
     executionTimeRand /= NUM_TESTS;

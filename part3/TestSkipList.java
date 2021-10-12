@@ -66,7 +66,7 @@ public final class TestSkipList {
         es.execute(new AddThread(h, size, mode, sl));
         histories.add(h.list());
       }
-      es.shutdown();
+      this.stop();
       histories.add(history.list());
       history = new History(History.merge(histories));
     } else {
@@ -98,8 +98,15 @@ public final class TestSkipList {
   }
 
   public void stop() {
-
     es.shutdown();
+    try {
+      if (!es.awaitTermination(3600, TimeUnit.SECONDS)) {
+        es.shutdownNow();
+      }
+    } catch (InterruptedException ex) {
+      es.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
   }
 
   public void start() {
@@ -111,7 +118,7 @@ public final class TestSkipList {
       es.execute(new LogThread(tmp, sl, opPerThread, adds, removes, contains));
       histories.add(tmp.list());
     }
-    es.shutdown();
+    this.stop();
     histories.add(history.list());
     history = new History(History.merge(histories));
   }
