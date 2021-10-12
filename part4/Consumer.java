@@ -14,7 +14,7 @@ public class Consumer implements Runnable {
     }
 
     public void run() {
-      while(finished.getPlain() != 0 || !logs.isEmpty()) {
+      while(finished.get() != 0 || !logs.isEmpty()) {
         if (!logs.isEmpty()) {
             Log sample = logs.deq();
             sortedSamples.add(sample);
