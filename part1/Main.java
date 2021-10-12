@@ -4,7 +4,7 @@ import java.util.concurrent.*;
 
 class Main {
 
-  final static int LAB_VALUE = 10000000;
+  final static int LAB_VALUE = 1000000;
   final static int NUM_TESTS = 10;
   final static int NUM_OPERATIONS = 1000000;
   public static void main(String[] args) {

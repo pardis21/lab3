@@ -105,7 +105,6 @@ boolean remove(int x) {
     }
     boolean[] marked = { false };
     succ = nodeIntegeroRemove.next[bottomLevel].get(marked);
-    int i = 0;
     while (true) {
       boolean iMarkedIt;
       iMarkedIt = nodeIntegeroRemove.next[bottomLevel].compareAndSet(succ, succ, false, true);

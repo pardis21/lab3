@@ -98,6 +98,7 @@ public final class TestSkipList {
 
   public void start() {
     es = Executors.newFixedThreadPool(threads);
+    System.out.println(threads+" threads");
     int opPerThread = operations / threads; // approximation +/- 1 can be ignored here
 
     for (int i = 0; i < threads; i++) {
