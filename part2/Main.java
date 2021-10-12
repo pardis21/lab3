@@ -1,0 +1,104 @@
+import java.util.*;
+import java.io.*;
+import java.util.concurrent.*;
+
+class Main {
+
+  final static int LAB_VALUE = 100;
+  final static int NUM_TESTS = 1;
+  final static int NUM_OPERATIONS = 10;
+  public static void main(String[] args) {
+
+    final int SIZE = (args.length > 0) ? Integer.parseInt(args[0]) : LAB_VALUE;
+
+    SkipList slRand = new SkipList();
+    SkipList slNorm = new SkipList();
+    TestSkipList testRand = new TestSkipList(slRand, TestSkipList.Mode.RANDOM);
+    TestSkipList testNorm = new TestSkipList(slNorm, TestSkipList.Mode.NORMAL);
+
+    System.out.println("Populating the lists...");
+    testRand.populate(SIZE);
+    testNorm.populate(SIZE);
+
+    // 
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter("part7.csv"));
+
+      System.out.println("====2 threads====");
+      System.out.println("**step 1**");
+      part7(testRand, testNorm, 2, 0.1, 0.1, 0.8, writer);
+      System.out.println("**step 2**");
+      part7(testRand, testNorm, 2, 0.5, 0.5, 0.0, writer);
+      System.out.println("**step 3**");
+      part7(testRand, testNorm, 2, 0.5, 0.25, 0.25, writer);
+      System.out.println("**step 4**");
+      part7(testRand, testNorm, 2, 0.9, 0.05, 0.05, writer);
+
+      System.out.println("====12 threads====");
+      System.out.println("**step 1**");
+      part7(testRand, testNorm, 12, 0.1, 0.1, 0.8, writer);
+      System.out.println("**step 2**");
+      part7(testRand, testNorm, 12, 0.5, 0.5, 0.0, writer);
+      System.out.println("**step 3**");
+      part7(testRand, testNorm, 12, 0.5, 0.25, 0.25, writer);
+      System.out.println("**step 4**");
+      part7(testRand, testNorm, 12, 0.9, 0.05, 0.05, writer);
+
+      System.out.println("====30 threads====");
+      System.out.println("**step 1**");
+      part7(testRand, testNorm, 30, 0.1, 0.1, 0.8, writer);
+      System.out.println("**step 2**");
+      part7(testRand, testNorm, 30, 0.5, 0.5, 0.0, writer);
+      System.out.println("**step 3**");
+      part7(testRand, testNorm, 30, 0.5, 0.25, 0.25, writer);
+      System.out.println("**step 4**");
+      part7(testRand, testNorm, 30, 0.9, 0.05, 0.05, writer);
+
+      System.out.println("====46 threads====");
+      System.out.println("**step 1**");
+      part7(testRand, testNorm, 46, 0.1, 0.1, 0.8, writer);
+      System.out.println("**step 2**");
+      part7(testRand, testNorm, 46, 0.5, 0.5, 0.0, writer);
+      System.out.println("**step 3**");
+      part7(testRand, testNorm, 46, 0.5, 0.25, 0.25, writer);
+      System.out.println("**step 4**");
+      part7(testRand, testNorm, 46, 0.9, 0.05, 0.05, writer);
+
+      writer.close();
+    } catch (Exception e) {
+    }
+    System.out.println(slRand.check());
+    System.out.println(slNorm.check());
+
+  }
+
+
+  private static void part7(TestSkipList rand, TestSkipList norm, int threads, double a, double r, double c, BufferedWriter w) {
+    long executionTimeRand = 0;
+    long executionTimeNorm = 0;
+    long begin;
+
+    for (int i = 0; i < NUM_TESTS; i++) {
+      System.out.println("run "+i);
+      rand.set(NUM_OPERATIONS, threads, a, r, c);
+      begin = System.nanoTime();
+      rand.start();
+      rand.stop();
+      executionTimeRand += (System.nanoTime() - begin);
+
+      norm.set(NUM_OPERATIONS, threads, a, r, c);
+      begin = System.nanoTime();
+      norm.start();
+      norm.stop();
+      executionTimeNorm += (System.nanoTime() - begin);
+    }
+    executionTimeRand /= NUM_TESTS;
+    executionTimeNorm /= NUM_TESTS;
+    // System.out.println("Rand Execution Time (" + threads + " Threads | " + a + " " + r + " " + c + " ): " + executionTimeRand);
+    // System.out.println("Norm Execution Time (" + threads + " Threads | " + a + " " + r + " " + c + " ): " + executionTimeNorm);
+    try {
+      w.write("Random," + threads + "," + a + "," + r + "," + c + "," + executionTimeRand + "\n");
+      w.write("Normal," + threads + "," + a + "," + r + "," + c + "," + executionTimeNorm + "\n");
+    } catch (Exception e) {}
+  }
+}
