@@ -238,7 +238,6 @@ public final class SkipList {
     }
     
     public boolean check() {
-      System.out.println(logs);
         return logs.check();
     }
     
