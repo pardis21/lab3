@@ -20,8 +20,10 @@ class Main {
     TestSkipList testNorm = new TestSkipList(slNorm, TestSkipList.Mode.NORMAL);
 
     System.out.println("Populating the lists...");
+    long begin = System.nanoTime();
     testRand.populate(SIZE);
     testNorm.populate(SIZE);
+    System.out.println("Both list populated in: " + (System.nanoTime() - begin)/1000000000 + "s");
     
 
    try {
