@@ -60,8 +60,8 @@ public final class TestSkipList {
 
   public void populate(int size) {
 
-    if (size > 100) {
-      int numberThreads = size / 100;
+    if (size > 100000) {
+      int numberThreads = size / 100000;
 
       if (numberThreads == 1)
         numberThreads = 2;
