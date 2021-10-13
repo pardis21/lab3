@@ -100,7 +100,7 @@ public final class TestSkipList {
   public void stop() {
     es.shutdown();
     try {
-      if (!es.awaitTermination(3600, TimeUnit.SECONDS)) {
+      if (!es.awaitTermination(20, TimeUnit.SECONDS)) {
         es.shutdownNow();
       }
     } catch (InterruptedException ex) {
