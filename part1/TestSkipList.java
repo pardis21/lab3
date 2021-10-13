@@ -55,7 +55,7 @@ public final class TestSkipList {
   public void stop() {
     es.shutdown();
     try {
-      if (!es.awaitTermination(3600, TimeUnit.SECONDS)) {
+      if (!es.awaitTermination(20, TimeUnit.SECONDS)) {
         es.shutdownNow();
       }
     } catch (InterruptedException ex) {
@@ -98,7 +98,6 @@ public final class TestSkipList {
 
   public void start() {
     es = Executors.newFixedThreadPool(threads);
-    System.out.println(threads+" threads");
     int opPerThread = operations / threads; // approximation +/- 1 can be ignored here
 
     for (int i = 0; i < threads; i++) {
