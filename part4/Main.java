@@ -14,27 +14,25 @@ class Main {
     SkipList slRand = new SkipList();
     SkipList slNorm = new SkipList();
     Random rand = new Random();
-
-    // MPSC bufferRand = new MPSC();
-    // MPSC bufferNorm = new MPSC();
     
     TestSkipList testRand = new TestSkipList(slRand, TestSkipList.Mode.RANDOM);
     TestSkipList testNorm = new TestSkipList(slNorm, TestSkipList.Mode.NORMAL);
 
-    System.out.println("Populating the lists...");
-    long begin = System.nanoTime();
-    testRand.populate(SIZE);
-    testNorm.populate(SIZE);
-    System.out.println("Both list populated in: " + (System.nanoTime() - begin)/1000000000 + "s");
-    
-    System.out.println(testRand.getHistory());
-    System.out.println(testNorm.getHistory());
+    //System.out.println("Populating the lists...");
+    // testRand.populate(SIZE);
+    // testNorm.populate(SIZE);
+  
 
    try {
       BufferedWriter writer = new BufferedWriter(new FileWriter("part9.csv"));
-
-      System.out.println("====46 threads====");
+      
+      long begin = System.nanoTime();
+      //System.out.println("====46 threads====");
       part9(testRand, testNorm, 46, 0.5, 0.5, 0.0, writer);
+      System.out.println("Both list populated in: " + (System.nanoTime() - begin)/1000000000 + "s");
+
+      System.out.println(testRand.getHistory());
+      System.out.println(testNorm.getHistory());
 
       writer.close();
     } catch (Exception e) {
@@ -48,7 +46,7 @@ class Main {
     long begin;
 
     for (int i = 0; i < NUM_TESTS; i++) {
-      System.out.println("run "+i);
+      //System.out.println("run "+i);
       rand.set(NUM_OPERATIONS, threads, a, r, c);
       begin = System.nanoTime();
       rand.start();
