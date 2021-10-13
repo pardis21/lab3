@@ -127,7 +127,6 @@ public final class TestSkipList {
 
   public boolean getHistory() {
     LinkedList<Log> tmp = new LinkedList<Log>();
-    System.out.println(sortedSamples.size());
     for (Log sample : sortedSamples) {
       tmp.add(sample);
     }
